@@ -20,7 +20,7 @@ public class Board {
         Tile[][] tiles = new Tile[board.length][board[0].length];
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[0].length; j++) {
-                tiles[i][j] = new Tile(board[i][j]);
+                tiles[i][j] = new Tile(board[i][j], j, i);
             }
         }
         return tiles;

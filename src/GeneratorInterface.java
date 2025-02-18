@@ -1,4 +1,4 @@
-abstract class GeneratorInterface {
+public abstract class GeneratorInterface {
     /**
      * Method to implement a generation of a board where 0 = no mine,
      * 9 = mine and other integers represents how many mines are neighbouring
@@ -7,7 +7,7 @@ abstract class GeneratorInterface {
      * @param minecount number of mines on generated board
      * @return Return a Board object with the generated board.
      */
-    abstract Board generate(int x, int y, int minecount);
+    abstract Board generate(int x, int y, int minecount, int startx, int starty);
 
     /**
      *Utility function to add 1 mine to all neighbours that aren't mines
@@ -15,7 +15,7 @@ abstract class GeneratorInterface {
      * @param x coordinate of mine (int[y][x])
      * @param y coordinate of mine (int[y][x])
      */
-    public void addToNeighbours(int[][] board, int x, int y) {
+    public void add1ToNeighbours(int[][] board, int x, int y) {
         for (int i = -1; i < 2; i++) {
             if ((y == 0 && i == -1) || (y == board.length - 1 && i == 1))
                 continue;
@@ -39,8 +39,8 @@ abstract class GeneratorInterface {
             // Loop through all elements of current row
             for (int j = 0; j < board[i].length; j++)
                 if (board[i][j] == 9){
-                    addToNeighbours(board, j, i);
-                };
+                    add1ToNeighbours(board, j, i);
+                }
         }
     }
 
@@ -54,8 +54,27 @@ abstract class GeneratorInterface {
             // Loop through all elements of current row
             for (int j = 0; j < board.intboard[i].length; j++)
                 if (board.intboard[i][j] == 9){
-                    addToNeighbours(board.intboard, j, i);
-                };
+                    add1ToNeighbours(board.intboard, j, i);
+                }
         }
+    }
+
+    public boolean isMineInNeighbours(int[][] board, int x, int y){
+        for (int i = -1; i < 2; i++) {
+            if ((y == 0 && i == -1) || (y == board.length - 1 && i == 1))
+                continue;
+            for (int j = -1; j < 2; j++) {
+                if ((x == 0 && j == -1) || (x == board[0].length - 1 && j == 1))
+                    continue;
+                if (board[y + i][x + j] == 9)
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getName();
     }
 }

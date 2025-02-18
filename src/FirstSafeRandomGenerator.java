@@ -1,5 +1,6 @@
 import java.util.Random;
-public class RandomGenerator extends GeneratorInterface{
+
+public class FirstSafeRandomGenerator extends GeneratorInterface{
 
     @Override
     public Board generate(int x, int y, int minecount, int startx, int starty) {
@@ -9,7 +10,7 @@ public class RandomGenerator extends GeneratorInterface{
             while (true){
                 int xCoordinate = rand.nextInt(x);
                 int yCoordinate = rand.nextInt(y);
-                if (board[yCoordinate][xCoordinate] != 9){
+                if (board[yCoordinate][xCoordinate] != 9 && Math.abs(xCoordinate-startx) > 1 && Math.abs(yCoordinate-starty) > 1){
                     board[yCoordinate][xCoordinate] = 9;
                     add1ToNeighbours(board, xCoordinate, yCoordinate);
                     break;
