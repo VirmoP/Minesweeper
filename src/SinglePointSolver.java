@@ -82,8 +82,6 @@ public class SinglePointSolver implements SolverInterface{
                 TileInfo tileInfo = tile1.getInformation();
                 if (tileInfo.getClass() == TileInfoNull.class && !tileInfo.flagged)
                     randomChoice.add(tile1);
-                else
-                    continue;
             }
         }
         int k = 0;
