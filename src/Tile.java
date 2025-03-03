@@ -35,8 +35,9 @@ public class Tile {
         }
     }
 
-    public void setRevealed(boolean revealed) {
+    public boolean setRevealed(boolean revealed) {
         this.revealed = revealed;
+        return this.isMine();
     }
 
     public boolean isMine() {

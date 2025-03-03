@@ -1,13 +1,13 @@
 import java.util.ArrayList;
 
 public class TileInfo {
-    final int x;
-    final int y;
-    boolean flagged;
-    int minesInNeighbourhood;
+    public final int x;
+    public final int y;
+    public boolean flagged;
+    public int minesInNeighbourhood;
 
-    Tile tile;
-    ArrayList<Tile> neighbours;
+    public Tile tile;
+    public ArrayList<Tile> neighbours;
 
     public TileInfo(int x, int y, boolean flagged, int minesInNeighbourhood, Tile tile, ArrayList<Tile> neighbours) {
         this.x = x;

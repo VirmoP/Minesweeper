@@ -8,7 +8,7 @@ public class Game {
 
     //private boolean gameover;
 
-    private final GeneratorInterface[] generatorOptions = {new FirstSafeRandomGenerator(), new RandomGenerator()};
+    private final GeneratorInterface[] generatorOptions = {new FirstSafeRandomGenerator(), new RandomGenerator(), new AutomatonSolveGenerator()};
     private GeneratorInterface chosenGenerator = generatorOptions[0];
 
     public Game(int width, int height, int minecount, int startx, int starty, GeneratorInterface generatorInterface ) {

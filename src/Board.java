@@ -1,11 +1,11 @@
 public class Board {
-    int width;
+    public int width;
 
-    int heigth;
+    public int heigth;
 
-    int[][] intboard;
+    public int[][] intboard;
 
-    Tile[][] board;
+    public Tile[][] board;
 
     public Board(int[][] board) {
         this.width = board.length;

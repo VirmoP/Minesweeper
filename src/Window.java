@@ -34,12 +34,11 @@ public class Window {
 
     static boolean firstClick;
     public static void main(String[] args){
-        startGame(10,10,20);
-
+        startGame(30,16,99);
     }
 
     public static void makeWindow(int varx, int vary, int varminecount){
-        frame.setSize(tilewidth*(varx)+tilewidth/2, tilewidth* vary + tabsize + headersize);
+        frame.setSize(tilewidth*(varx+2), tilewidth* vary + tabsize + headersize);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         frame.add(header);
@@ -48,7 +47,8 @@ public class Window {
         header.setBounds(0,0,tilewidth*(varx +1), headersize);
         playfield.setBounds(0,headersize,tilewidth*(varx +1), tilewidth* vary);
 
-        resetButton.setBounds(tilewidth*(varx -2), 10, tilewidth*3/2, headersize/2);
+//        resetButton.setBounds(tilewidth*(varx -2), 10, tilewidth*3/2, headersize/2);
+        resetButton.setPreferredSize(new Dimension(tilewidth*3, headersize/2));
         resetButton.setText("Reset");
         resetButton.addActionListener(e -> {
             playfield.removeAll();
@@ -64,12 +64,15 @@ public class Window {
             playfield.revalidate();
         });
 
-        solveButton.setBounds(tilewidth*(varx -4), 10, tilewidth*3/2, headersize/2);
+//        solveButton.setBounds(tilewidth*(varx -4), 10, tilewidth*3/2, headersize/2);
+        solveButton.setPreferredSize(new Dimension(tilewidth*3, headersize/2));
         solveButton.setText("Solve");
         solveButton.addActionListener(e -> {
-            System.out.println("waddap");
-            AutomatonSolver automatonSolver = new AutomatonSolver();
-            boolean solve = automatonSolver.solve(game);
+            SolverInterface[] solvers = {new AutomatonSolver(), new AutomatonSolverWithGuess(), new SinglePointSolver()};
+
+            SolverInterface solver = solvers[2];
+//            AutomatonSolver automatonSolver = new AutomatonSolver();
+            boolean solve = solver.solve(game);
             System.out.println("Solved - " + solve);
             updateBoard();
         });
@@ -82,8 +85,8 @@ public class Window {
         header.add(resetButton);
         header.add(solveButton);
 
-        header.setLayout(null);
-        playfield.setLayout(null);
+        header.setLayout(new FlowLayout());
+        playfield.setLayout(new GridLayout(vary, varx));
         header.setVisible(true);
         playfield.setVisible(true);
 
@@ -97,7 +100,7 @@ public class Window {
         width = varx;
         heigth = vary;
         minecount = varminecount;
-        tilewidth = 60;
+        tilewidth = 30;
         tabsize = 40;
         headersize = 60;
         gameover = false;
@@ -106,10 +109,8 @@ public class Window {
         buttons = new TileButton[vary][varx];
 
         if (game != null) {
-            System.out.println("olemas" + game.getChosenGenerator());
             game = new Game(new Board(new int[vary][varx]), 0, 0, 0, game.getChosenGenerator());
         } else {
-            System.out.println("uus");
             game = new Game(new Board(new int[vary][varx]), 0, 0, 0);
         }
         createGrid(varx, vary, tilewidth);
@@ -121,7 +122,7 @@ public class Window {
         generatorChoiceMenu.setLocation(130, 10);
 
         JLabel text = new JLabel(game.getChosenGenerator().toString());
-        text.setBounds(130, 10, 200, 30);
+        text.setPreferredSize(new Dimension(200,10));
         header.add(text);
         text.addMouseListener(new MouseAdapter() {
             /**
@@ -131,14 +132,13 @@ public class Window {
              */
             @Override
             public void mouseClicked(MouseEvent e) {
-                generatorChoiceMenu.show(header, 130, 10);
+                generatorChoiceMenu.show(header, text.getX(), text.getY());
             }
         });
 
         for (GeneratorInterface item : game.getGeneratorOptions()){
             JMenuItem menuitem = new JMenuItem(item.toString());
             menuitem.addActionListener(e -> {
-                System.out.println("reset nupp " + item);
                 text.setText(menuitem.getText());
                 game.setChosenGenerator(item);
             });
@@ -154,7 +154,11 @@ public class Window {
             for (int i = 0; i < x; i++) {
                 buttons[j][i] = new TileButton(game.getBoard().board[j][i]);
 
-                buttons[j][i].setBounds(i*tilewidth+3,j*tilewidth,tilewidth,tilewidth );
+//                buttons[j][i].setBounds(i*tilewidth+3,j*tilewidth,tilewidth,tilewidth );
+                buttons[j][i].setPreferredSize(new Dimension(tilewidth, tilewidth));
+                //buttons[j][i].setBackground(new Color(23,93,207));
+
+                buttons[j][i].setMargin(new Insets(0,0,0,0));
 
                 buttonLogistics(buttons[j][i]);
 
@@ -180,7 +184,7 @@ public class Window {
                     GeneratorInterface valitud = game.getChosenGenerator();
 
                     game = new Game(width, heigth,minecount, button.tile.x, button.tile.y, valitud);
-                    System.out.println("aso " + game.getChosenGenerator());
+                    
                     createGrid(width, heigth, tilewidth);
                     printmatrix(game.getBoard().intboard);
 
@@ -205,7 +209,6 @@ public class Window {
                     }
                     if (!button.tile.isFlagged()) {
                         button.tile.revealWithNeighbours();
-                        System.out.println(button.tile.isRevealed());
                         updateBoard();
                     }
                 }
@@ -232,7 +235,6 @@ public class Window {
                 if (element.tile.isMine() && element.tile.isRevealed()) {
                     gameover = true;
                     counter.setText("Game lost");
-                    return;
                 }
                 if (element.tile.isFlagged())
                     flaggedCount++;
@@ -244,7 +246,6 @@ public class Window {
         if (revealed == width * heigth -20){
             counter.setText("Game Won");
             gameover = true;
-            return;
         }
         counter.setText("Mines left - " + (minecount-flaggedCount));
     }
