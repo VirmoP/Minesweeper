@@ -14,7 +14,7 @@ public class AutomatonSolver implements SolverInterface{
      * @return boolean of solved status. If game is solved true, otherwise false.
      */
     @Override
-    public boolean solve(Game game) {
+    public SolveInfo solve(Game game) {
         Tile[][] tiles = game.getBoard().board;
         tiles[game.getStarty()][game.getStartx()].revealWithNeighbours();
 
@@ -33,11 +33,11 @@ public class AutomatonSolver implements SolverInterface{
             }
 
             if (flaggedTiles.size() == game.getMinecount())
-                return true;
+                return new SolveInfo(true, null);
         }
 
 
-        return false;
+        return new SolveInfo(false, null);
     }
 
 

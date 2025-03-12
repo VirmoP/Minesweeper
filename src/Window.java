@@ -1,6 +1,7 @@
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.*;
 
 public class Window {
@@ -34,7 +35,7 @@ public class Window {
 
     static boolean firstClick;
     public static void main(String[] args){
-        startGame(30,16,99);
+        startGame(32,18,100);
     }
 
     public static void makeWindow(int varx, int vary, int varminecount){
@@ -64,15 +65,18 @@ public class Window {
             playfield.revalidate();
         });
 
+
+        AtomicBoolean solvecheck = new AtomicBoolean(false);
 //        solveButton.setBounds(tilewidth*(varx -4), 10, tilewidth*3/2, headersize/2);
         solveButton.setPreferredSize(new Dimension(tilewidth*3, headersize/2));
         solveButton.setText("Solve");
         solveButton.addActionListener(e -> {
-            SolverInterface[] solvers = {new AutomatonSolver(), new AutomatonSolverWithGuess(), new SinglePointSolver()};
+            SolverInterface[] solvers = {new AutomatonSolver(), new AutomatonSolverWithGuess(), new SinglePointSolver(), new CSPSolver(), new CSPSolverSubsets()};
 
-            SolverInterface solver = solvers[2];
-//            AutomatonSolver automatonSolver = new AutomatonSolver();
+            SolverInterface solver = solvers[4];
+//          AutomatonSolver automatonSolver = new AutomatonSolver();
             boolean solve = solver.solve(game);
+
             System.out.println("Solved - " + solve);
             updateBoard();
         });
@@ -160,6 +164,8 @@ public class Window {
 
                 buttons[j][i].setMargin(new Insets(0,0,0,0));
 
+                //buttons[j][i].setText(i+", "+j);
+
                 buttonLogistics(buttons[j][i]);
 
                 playfield.add(buttons[j][i]);
@@ -189,13 +195,16 @@ public class Window {
                     printmatrix(game.getBoard().intboard);
 
                     //mouseReleased(e);
-                    buttons[button.tile.y][button.tile.x].tile.revealWithNeighbours();
+                    //buttons[button.tile.y][button.tile.x].tile.revealWithNeighbours();
+                    buttons[button.tile.y][button.tile.x].tile.setRevealed(true);
                     updateBoard();
                     return;
                 }
 
-                if (gameover)
+                if (gameover) {
+                    System.out.println(button.tile);
                     return;
+                }
 
                 if (e.getButton() == MouseEvent.BUTTON3) {
                     if (!button.tile.isRevealed()){
@@ -225,6 +234,17 @@ public class Window {
         }
     }
 
+    public static void unrevealedToMines(){
+        for (TileButton[] row : buttons){
+            for (TileButton element : row){
+                if (!element.tile.isRevealed()) {
+                    element.tile.setFlagged(true);
+                    element.setIcon(new ImageIcon("src/images/flag.png"));
+                }
+            }
+        }
+    }
+
 
     public static void updateBoard(){
         int flaggedCount = 0;
@@ -243,15 +263,18 @@ public class Window {
 
             }
         }
-        if (revealed == width * heigth -20){
+
+        counter.setText("Mines left - " + (minecount-flaggedCount));
+
+        if (revealed == width * heigth - minecount){
             counter.setText("Game Won");
             gameover = true;
+            unrevealedToMines();
         }
-        counter.setText("Mines left - " + (minecount-flaggedCount));
+
     }
 
     public static void updateButton(TileButton button){
-
         if (!button.tile.isFlagged() && !button.tile.isRevealed())
             button.setIcon(null);
         if (button.tile.isFlagged())
@@ -265,6 +288,7 @@ public class Window {
                 button.setBackground(new Color(255,255,255));
             }
         }
+
     }
 
 

@@ -1,4 +1,4 @@
-import java.util.ArrayList;
+import java.util.Set;
 
 public class TileInfo {
     public final int x;
@@ -7,9 +7,9 @@ public class TileInfo {
     public int minesInNeighbourhood;
 
     public Tile tile;
-    public ArrayList<Tile> neighbours;
+    public Set<Tile> neighbours;
 
-    public TileInfo(int x, int y, boolean flagged, int minesInNeighbourhood, Tile tile, ArrayList<Tile> neighbours) {
+    public TileInfo(int x, int y, boolean flagged, int minesInNeighbourhood, Tile tile, Set<Tile> neighbours) {
         this.x = x;
         this.y = y;
         this.flagged = flagged;

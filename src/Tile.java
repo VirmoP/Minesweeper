@@ -1,5 +1,5 @@
-//import javax.swing.*;
-import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Tile {
     final int x;
@@ -8,7 +8,7 @@ public class Tile {
     private boolean flagged;
     private boolean revealed;
     int minesInNeighbourhood;
-    ArrayList<Tile> neighbours = new ArrayList<>() ;
+    Set<Tile> neighbours = new HashSet<>();
 
     //JButton button;
 
@@ -36,6 +36,8 @@ public class Tile {
     }
 
     public boolean setRevealed(boolean revealed) {
+        if (this.flagged)
+            return false;
         this.revealed = revealed;
         return this.isMine();
     }
@@ -53,12 +55,14 @@ public class Tile {
     }
 
     public void setFlagged(boolean flagged) {
+        if (this.revealed)
+            return;
         this.flagged = flagged;
     }
 
 
     /**
-     * Method to use in solver, return TileInofNull object only when tile isn't revealed or flagged
+     * Method to use in solver, return TileInfoNull object only when tile isn't revealed or flagged
      *
      * @return TileInfo object containing information available to the solver. TileInfoNull when tile is unreavealed and unflagged (meaning playerhas no info about it).
      */
@@ -69,5 +73,8 @@ public class Tile {
         return new TileInfo(x,y, flagged, minesInNeighbourhood, this, neighbours);
     }
 
-
+    @Override
+    public String toString() {
+        return this.x + ";" + this.y + "-N:"+this.minesInNeighbourhood+",R:"+this.revealed+",F:"+this.flagged;
+    }
 }

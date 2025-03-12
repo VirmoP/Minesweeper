@@ -10,7 +10,7 @@ public class SinglePointSolver implements SolverInterface{
      * @return boolean of solved status. If game is solved true, otherwise false.
      */
     @Override
-    public boolean solve(Game game) {
+    public SolveInfo solve(Game game) {
 
         Set<Tile> S = new HashSet<>();
         S.add(game.getBoard().board[game.getStarty()][game.getStartx()]);
@@ -34,9 +34,9 @@ public class SinglePointSolver implements SolverInterface{
             if (S.isEmpty())
                 notLost = false;
 
-            if(tile.setRevealed(true)) {
-                return false;
-            }
+            assert tile != null;
+            tile.setRevealed(true);
+
             S.remove(tile);
             TileInfo info = tile.getInformation();
             if (info.minesInNeighbourhood == 0){
@@ -54,7 +54,7 @@ public class SinglePointSolver implements SolverInterface{
                 }
             }
         }
-        return true;
+        return new SolveInfo(true, null);
     }
 
     public int[] countAdjacent(Tile tile){

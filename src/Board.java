@@ -35,6 +35,8 @@ public class Board {
                     for (int j = -1; j < 2; j++) {
                         if ((x == 0 && j == -1) || (x == board[0].length - 1 && j == 1))
                             continue;
+                        if (i==0 && j==0)
+                            continue;
                         board[y][x].neighbours.add(board[y+i][x+j]);
                     }
                 }

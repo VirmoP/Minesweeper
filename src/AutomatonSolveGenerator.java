@@ -16,10 +16,13 @@ public class AutomatonSolveGenerator extends GeneratorInterface{
             i++;
 
             board = firstSafeRandomGenerator.generate(x, y, minecount, startx, starty);
+
+            Board boardcopy = new Board(board.intboard);
+
             Game game = new Game(board, minecount, startx, starty);
 
-            if (automatonSolver.solve(game)){
-                return board;
+            if (automatonSolver.solve(game).solved){
+                return boardcopy;
             }
         }
         return board;
