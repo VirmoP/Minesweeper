@@ -35,7 +35,7 @@ public class Window {
 
     static boolean firstClick;
     public static void main(String[] args){
-        startGame(32,18,100);
+        startGame(32,18,150);
     }
 
     public static void makeWindow(int varx, int vary, int varminecount){
@@ -75,9 +75,10 @@ public class Window {
 
             SolverInterface solver = solvers[4];
 //          AutomatonSolver automatonSolver = new AutomatonSolver();
-            boolean solve = solver.solve(game);
+            SolveInfo solveinfo = solver.solve(game);
 
-            System.out.println("Solved - " + solve);
+            System.out.println("Solved - " + solveinfo.solved);
+            System.out.println(solveinfo.constraints);
             updateBoard();
         });
 
@@ -194,8 +195,6 @@ public class Window {
                     createGrid(width, heigth, tilewidth);
                     printmatrix(game.getBoard().intboard);
 
-                    //mouseReleased(e);
-                    //buttons[button.tile.y][button.tile.x].tile.revealWithNeighbours();
                     buttons[button.tile.y][button.tile.x].tile.setRevealed(true);
                     updateBoard();
                     return;
@@ -212,7 +211,7 @@ public class Window {
                         updateBoard();
                     }
                 } else if (e.getButton() == MouseEvent.BUTTON1) {
-                    if (e.getClickCount() == 2){
+                    if (e.getClickCount() == 2 && flagsPresent(button)){
                         revealNeighbours(button);
                         updateBoard();
                     }
@@ -224,6 +223,15 @@ public class Window {
             }
         });
 
+    }
+
+    private static boolean flagsPresent(TileButton button) {
+        int flags = 0;
+        for (Tile tile: button.tile.neighbours){
+            if (tile.isFlagged())
+                flags++;
+        }
+        return flags == button.tile.minesInNeighbourhood;
     }
 
     private static void revealNeighbours(TileButton button) {

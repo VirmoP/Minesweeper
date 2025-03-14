@@ -16,7 +16,7 @@ public class CSPSolverSubsets implements SolverInterface{
     public SolveInfo solve(Game game) {
         minesLeft = game.getMinecount();
         int iteration = 0;
-        int backtrackiteration = 0;
+
         Map<Set<Tile>, Integer> constraints = new HashMap<>();
         Tile[][] tiles = game.getBoard().board;
 
@@ -30,6 +30,7 @@ public class CSPSolverSubsets implements SolverInterface{
         while (somethingChanged) {
             while (somethingChanged) {
                 while (somethingChanged) {
+                    iteration++;
 
                     if (constraints.isEmpty())
                         break;

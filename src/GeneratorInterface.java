@@ -35,7 +35,6 @@ public abstract class GeneratorInterface {
      */
     public void boardFromMines(int[][] board){
         for (int i = 0; i < board.length; i++) {
-            System.out.println();
             // Loop through all elements of current row
             for (int j = 0; j < board[i].length; j++)
                 if (board[i][j] == 9){
