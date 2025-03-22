@@ -23,7 +23,9 @@ public class Tile {
     }
 
 
-
+    /**
+     * Method that recursively reveals Tiles, if tile is 0.
+     */
     public void revealWithNeighbours(){
         if (isRevealed())
             return;
@@ -35,6 +37,11 @@ public class Tile {
         }
     }
 
+    /**
+     * Sets revealed status to given boolean, if tile is not flagged
+     * @param revealed given boolean
+     * @return true only if mine was revealed and is a mine
+     */
     public boolean setRevealed(boolean revealed) {
         if (this.flagged)
             return false;
@@ -54,6 +61,10 @@ public class Tile {
         return revealed;
     }
 
+    /**
+     * Sets flagged status to given boolean if not revealed
+     * @param flagged given boolean
+     */
     public void setFlagged(boolean flagged) {
         if (this.revealed)
             return;
@@ -64,7 +75,7 @@ public class Tile {
     /**
      * Method to use in solver, return TileInfoNull object only when tile isn't revealed or flagged
      *
-     * @return TileInfo object containing information available to the solver. TileInfoNull when tile is unreavealed and unflagged (meaning playerhas no info about it).
+     * @return TileInfo object containing information available to the solver. TileInfoNull when tile is unreavealed and unflagged (meaning player has no info about it).
      */
     public TileInfo getInformation(){
         if (!isRevealed() && !isFlagged()){

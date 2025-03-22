@@ -1,8 +1,12 @@
 import java.util.HashSet;
-import java.util.Random;
 import java.util.Set;
 
 public class SinglePointSolver implements SolverInterface{
+
+    public Set<Tile> tobeWorkedTiles = new HashSet<>();
+    public Set<Tile> flaggedTiles = new HashSet<>();
+    public Set<Tile> workedTiles = new HashSet<>();
+
     /**
      * Method that acts on a game object. Change happens to tiles and their revealed status.
      *
@@ -11,86 +15,87 @@ public class SinglePointSolver implements SolverInterface{
      */
     @Override
     public SolveInfo solve(Game game) {
+        Tile[][] tiles = game.getBoard().board;
+        tiles[game.getStarty()][game.getStartx()].revealWithNeighbours();
 
-        Set<Tile> S = new HashSet<>();
-        S.add(game.getBoard().board[game.getStarty()][game.getStartx()]);
-        System.out.println(S);
-        boolean notLost = true;
-        while (notLost){
-            Tile tile = null;
-            if (!S.isEmpty()){
-                for (Tile tilepick : S){
-                    tile = tilepick;
-                    break;
-                }
+        //keep track of tiles that can change and only check if can change on those
+        tobeWorkedTiles.add(tiles[game.getStarty()][game.getStartx()]);
+
+        boolean notStuck = true;
+        int iteration = 0;
+
+        while (notStuck && iteration < tiles.length*tiles[0].length){
+            iteration++;
+            notStuck = false;
+            Set<Tile> revealedcopy = new HashSet<>(tobeWorkedTiles);
+            for (Tile tile: revealedcopy){
+                if (handleTile(tile))
+                    notStuck = true;
             }
-            /*else {
-                //How to do random choice
-                tile = pickRandomTile(game);
-            }
 
-             */
-            //Gameover statement
-            if (S.isEmpty())
-                notLost = false;
-
-            assert tile != null;
-            tile.setRevealed(true);
-
-            S.remove(tile);
-            TileInfo info = tile.getInformation();
-            if (info.minesInNeighbourhood == 0){
-                S.addAll(info.neighbours);
-            }else {
-                for (Tile neighbour : info.neighbours){
-                    TileInfo neighbourinfo = neighbour.getInformation();
-                    if (neighbourinfo.getClass() == TileInfoNull.class)
-                        continue;
-                    int[] values = countAdjacent(neighbour);
-                    if (values[1] == neighbourinfo.minesInNeighbourhood)
-                        S.add(neighbour);
-                    if (values[0] + values[1] == neighbourinfo.minesInNeighbourhood)
-                        S.add(neighbour);
-                }
-            }
+            if (flaggedTiles.size() == game.getMinecount())
+                return new SolveInfo(true, null);
         }
-        return new SolveInfo(true, null);
+
+
+        return new SolveInfo(false, null);
     }
 
-    public int[] countAdjacent(Tile tile){
-        int flagged = 0;
-        int unmarked = 0;
-        TileInfo tileInfo = tile.getInformation();
-        for (Tile neighbour : tileInfo.neighbours){
-            TileInfo neighbourinfo = neighbour.getInformation();
+
+    /**
+     * Method that checks if tile satisfies certain simple constraints and if so does the necessary action
+     * @param tile given Tile
+     * @return boolean if something was done
+     */
+    public boolean handleTile(Tile tile){
+        TileInfo info = tile.getInformation();
+
+        //if no info about tile or it is flagged nothing can be done
+        if (info.getClass() == TileInfoNull.class || info.flagged){
+            return false;
+        }
+
+        Set<Tile> unrevealed = new HashSet<>();
+        Set<Tile> flagged = new HashSet<>();
+
+        TileInfo neighbourinfo;
+        for (Tile neighbour : info.neighbours){
+            neighbourinfo = neighbour.getInformation();
             if (neighbourinfo.getClass() == TileInfoNull.class){
-                unmarked++;
-            } else if (tileInfo.flagged) {
-                flagged++;
+                unrevealed.add(neighbour);
+            } else if (neighbourinfo.flagged) {
+                flagged.add(neighbour);
+                flaggedTiles.add(neighbour);
+            } else {
+                if (!workedTiles.contains(neighbour)) {
+                    tobeWorkedTiles.add(neighbour);
+                }
             }
         }
-        int[] values = new int[2];
-        values[0] = unmarked;
-        values[1] = flagged;
-        return values;
+
+        //if flags equal to mines in neighbourhood all unrevealed and not flagged tiles can be revealed
+        if (info.minesInNeighbourhood == flagged.size()) {
+            for (Tile neighbour : unrevealed) {
+                neighbour.setRevealed(true);
+                if (!workedTiles.contains(neighbour))
+                    tobeWorkedTiles.add(neighbour);
+            }
+            workedTiles.add(tile);
+            tobeWorkedTiles.remove(tile);
+            return true;
+        }
+
+        //if mines in neighbourhood is equal to flags and unrevealed then all neighbours can be flagged
+        if (info.minesInNeighbourhood == flagged.size() + unrevealed.size()) {
+            for (Tile neighbour : unrevealed) {
+                neighbour.setFlagged(true);
+                flaggedTiles.add(neighbour);
+            }
+            workedTiles.add(tile);
+            tobeWorkedTiles.remove(tile);
+            return true;
+        }
+        return false;
     }
 
-    public Tile pickRandomTile(Game game){
-        Set<Tile> randomChoice = new HashSet<>();
-        for (Tile[] row : game.getBoard().board){
-            for (Tile tile1 : row){
-                TileInfo tileInfo = tile1.getInformation();
-                if (tileInfo.getClass() == TileInfoNull.class && !tileInfo.flagged)
-                    randomChoice.add(tile1);
-            }
-        }
-        int k = 0;
-        int randomint = new Random().nextInt(randomChoice.size());
-        for (Tile choice : randomChoice){
-            if (k == randomint)
-                return choice;
-            k++;
-        }
-        return null;
-    }
 }

@@ -1,5 +1,8 @@
 import java.util.Set;
 
+/**
+ * Utility tile that a solver gets from a tile. Only reveals info player would normally get
+ */
 public class TileInfo {
     public final int x;
     public final int y;

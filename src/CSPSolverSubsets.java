@@ -22,9 +22,18 @@ public class CSPSolverSubsets implements SolverInterface{
 
 
         tiles[game.getStarty()][game.getStartx()].setRevealed(true);
-        TileInfo firstinfo =  tiles[game.getStarty()][game.getStartx()].getInformation();
 
-        constraints.put(firstinfo.neighbours, firstinfo.minesInNeighbourhood);
+        for (Tile[] row: tiles) {
+            for (Tile tile : row) {
+                TileInfo info = tile.getInformation();
+                if (info.getClass() != TileInfoNull.class)
+                    if (!info.flagged) {
+                        constraints.put(info.neighbours, info.minesInNeighbourhood);
+                    }else
+                        minesLeft--;
+            }
+        }
+
         boolean somethingChanged = true;
 
         while (somethingChanged) {
@@ -86,6 +95,12 @@ public class CSPSolverSubsets implements SolverInterface{
     }
 
 
+    /**
+     * Method that turns subsets back into a set of constraints.
+     * @param subsets Given subsets
+     * @param constraints previous constraints to build new constraints
+     * @return Set of new constraints
+     */
     public Set<Map<Set<Tile>, Integer>> subsetsToConstraints(Set<Set<Set<Tile>>> subsets, Map<Set<Tile>, Integer> constraints){
         Set<Map<Set<Tile>, Integer>> result = new HashSet<>();
         for (Set<Set<Tile>> subset: subsets){
@@ -98,6 +113,11 @@ public class CSPSolverSubsets implements SolverInterface{
         return result;
     }
 
+    /**
+     * Method that sets up the recursive backtracking.
+     * @param constraints given constraints
+     * @return new constraints
+     */
     public Map<Set<Tile>, Integer> backtrackingSetup(Map<Set<Tile>, Integer> constraints){
         Map<Tile, Integer> values = new HashMap<>();
 
@@ -147,6 +167,15 @@ public class CSPSolverSubsets implements SolverInterface{
         return constraints;
     }
 
+
+    /**
+     * Recursive method for finding all possible solutions to constraints
+     * @param i tile to change
+     * @param allTiles array of all tiles
+     * @param info chosen value for tiles
+     * @param constraints constraints to check for
+     * @return List of all possible solutions
+     */
     public List<Map<Tile, Integer>> backtracking(int i, Tile[] allTiles, Map<Tile, Integer> info, Map<Set<Tile>, Integer> constraints){
 
         if (i >= allTiles.length || !checkIfTooManyMines(info, constraints)){
@@ -169,6 +198,12 @@ public class CSPSolverSubsets implements SolverInterface{
 
     }
 
+    /**
+     * Method that checks if info map is possible in constraints
+     * @param info given info map to check
+     * @param constraints constraints to adhere to
+     * @return boolean true if given map is possible, false if too many mines somewhere
+     */
     public boolean checkIfTooManyMines(Map<Tile, Integer> info, Map<Set<Tile>, Integer> constraints){
         for (Set<Tile> constraint : constraints.keySet()){
             int sum = 0;
@@ -183,6 +218,12 @@ public class CSPSolverSubsets implements SolverInterface{
         return true;
     }
 
+    /**
+     * Method that checks if info map is possible in constraints
+     * @param info given info map to check
+     * @param constraints constraints to adhere to
+     * @return boolean true if given map is possible, false if too many or too few mines somewhere
+     */
     public boolean checkIfCorrect(Map<Tile, Integer> info, Map<Set<Tile>, Integer> constraints){
         for (Set<Tile> constraint : constraints.keySet()){
             int sum = 0;
@@ -196,6 +237,12 @@ public class CSPSolverSubsets implements SolverInterface{
         return true;
     }
 
+    /**
+     * Method that takes constraints and makes complete subsets of constraints
+     * complete subset is a set of constraint keys that have any tiles in common
+     * @param constraints given constraints
+     * @return Set of sets of constraints, where the sets of constraints share tiles
+     */
     public Set<Set<Set<Tile>>> turnIntoSubsets(Map<Set<Tile>, Integer> constraints){
 
         Set<Tile> allTiles = new HashSet<>();
@@ -235,6 +282,11 @@ public class CSPSolverSubsets implements SolverInterface{
         return subsets;
     }
 
+    /**
+     * Checks if any constraint is a subset of other constraints, if it is then the larger one can be simplified
+     * @param constraints constraints to simplify
+     * @return simplified constraints
+     */
     public Map<Set<Tile>, Integer> simplify(Map<Set<Tile>, Integer> constraints){
         Map<Set<Tile>, Integer> tempconstraints = new HashMap<>();
 
@@ -256,6 +308,11 @@ public class CSPSolverSubsets implements SolverInterface{
         return tempconstraints;
     }
 
+    /**
+     * Method for simple constraint solution, if constraint is equal to zero then can reveal all tiles in constraint, if contraint is equal to number of tiles all can be flagged
+     * @param constraints given constraint to simplify
+     * @return simplified constraints
+     */
     public Map<Set<Tile>, Integer> simpleFlagAndReveal(Map<Set<Tile>, Integer> constraints){
         int flags = 0;
         Map<Set<Tile>, Integer> tempconstraints = new HashMap<>();
@@ -300,6 +357,11 @@ public class CSPSolverSubsets implements SolverInterface{
         return tempconstraints;
     }
 
+    /**
+     * Method that removes known mines from constraints and removes contraint if it is empty
+     * @param constraints constraints to simplify
+     * @return simplified constraints
+     */
     public Map<Set<Tile>, Integer> removeUnnecessary(Map<Set<Tile>, Integer> constraints){
         Map<Set<Tile>, Integer> tempconstraints = new HashMap<>();
 

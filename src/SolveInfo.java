@@ -1,6 +1,9 @@
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Utily class for moving info about solution of board
+ */
 public class SolveInfo {
     boolean solved;
     Map<Set<Tile>, Integer> constraints;

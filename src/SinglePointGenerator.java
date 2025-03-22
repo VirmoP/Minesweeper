@@ -1,16 +1,16 @@
 
-public class AutomatonSolveGenerator extends AbstractGenerator {
+public class SinglePointGenerator extends AbstractGenerator {
 
     @Override
     public Board generate(int x, int y, int minecount, int startx, int starty) {
 
         FirstSafeRandomGenerator firstSafeRandomGenerator = new FirstSafeRandomGenerator();
 
-        AutomatonSolver automatonSolver = new AutomatonSolver();
+        SinglePointSolver singlePointSolver = new SinglePointSolver();
 
         Board board = null;
 
-        //Generates a board until it is solvable by automaton solver, if not solved by 100 generations then returns unsolvable board.
+        //Generates a board until it is solvable by single point solver, if not solved by 100 generations then returns unsolvable board.
         int i = 0;
         while (i < 100) {
 
@@ -22,7 +22,7 @@ public class AutomatonSolveGenerator extends AbstractGenerator {
 
             Game game = new Game(board, minecount, startx, starty);
 
-            if (automatonSolver.solve(game).solved){
+            if (singlePointSolver.solve(game).solved){
                 return boardcopy;
             }
         }

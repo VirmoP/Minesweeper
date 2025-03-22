@@ -1,8 +1,9 @@
 import java.util.Random;
-public class RandomGenerator extends GeneratorInterface{
+public class RandomGenerator extends AbstractGenerator {
 
     @Override
     public Board generate(int x, int y, int minecount, int startx, int starty) {
+        //Generate a completely random board
         Random rand = new Random();
         int[][] board = new int[y][x];
         for (int i = 0; i < minecount; i++) {

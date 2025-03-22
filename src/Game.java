@@ -8,15 +8,15 @@ public class Game {
 
     //private boolean gameover;
 
-    private final GeneratorInterface[] generatorOptions = {new FirstSafeRandomGenerator(), new RandomGenerator(), new AutomatonSolveGenerator(), new CSPSubsetSolveGenerator()};
-    private GeneratorInterface chosenGenerator = generatorOptions[0];
+    private final AbstractGenerator[] generatorOptions = {new FirstSafeRandomGenerator(), new RandomGenerator(), new AutomatonSolveGenerator(), new AutomatonSolveMineMoveGenerator(), new CSPSubsetSolveGenerator() , new CSPSubsetSolveMineMoveGenerator()};
+    private AbstractGenerator chosenGenerator = generatorOptions[0];
 
-    public Game(int width, int height, int minecount, int startx, int starty, GeneratorInterface generatorInterface ) {
-        this.board = generatorInterface.generate(width, height, minecount, startx, starty);
+    public Game(int width, int height, int minecount, int startx, int starty, AbstractGenerator abstractGenerator) {
+        this.board = abstractGenerator.generate(width, height, minecount, startx, starty);
         this.minecount = minecount;
         this.startx = startx;
         this.starty = starty;
-        this.chosenGenerator = generatorInterface;
+        this.chosenGenerator = abstractGenerator;
     }
 
     public Game(Board board, int minecount, int startx, int starty) {
@@ -26,12 +26,12 @@ public class Game {
         this.starty = starty;
     }
 
-    public Game(Board board, int minecount, int startx, int starty, GeneratorInterface generatorInterface) {
+    public Game(Board board, int minecount, int startx, int starty, AbstractGenerator abstractGenerator) {
         this.board = board;
         this.minecount = minecount;
         this.startx = startx;
         this.starty = starty;
-        this.chosenGenerator = generatorInterface;
+        this.chosenGenerator = abstractGenerator;
     }
 
     public Board getBoard() {
@@ -50,20 +50,15 @@ public class Game {
         return this.starty;
     }
 
-    public GeneratorInterface getChosenGenerator() {
+    public AbstractGenerator getChosenGenerator() {
         return this.chosenGenerator;
     }
 
-    public GeneratorInterface[] getGeneratorOptions() {
+    public AbstractGenerator[] getGeneratorOptions() {
         return this.generatorOptions;
     }
 
-
-//    public void setGameover(boolean gameover) {
-//        this.gameover = gameover;
-//    }
-
-    public void setChosenGenerator(GeneratorInterface chosenGenerator) {
+    public void setChosenGenerator(AbstractGenerator chosenGenerator) {
         this.chosenGenerator = chosenGenerator;
     }
 }

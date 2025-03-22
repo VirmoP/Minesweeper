@@ -16,6 +16,11 @@ public class Board {
         setNeighbours();
     }
 
+    /**
+     * Method that creates a matrix of TileButtons from matrix of integers where numbers show how many neighbours are mines, 9 means tile itself is mine.
+     * @param board int[][] board
+     * @return Tile[][] from given int[][]
+     */
     public static Tile[][] intMatToTileMat(int[][] board){
         Tile[][] tiles = new Tile[board.length][board[0].length];
         for (int i = 0; i < board.length; i++) {
@@ -26,6 +31,9 @@ public class Board {
         return tiles;
     }
 
+    /**
+     * Method that sets neighbours of every Tile.
+     */
     void setNeighbours(){
         for (int y = 0; y < board.length; y++) {
             for (int x = 0; x < board[0].length; x++) {

@@ -48,7 +48,7 @@ public class AutomatonSolverWithGuess implements SolverInterface{
     }
 
     /**
-     * Method that reveals tile with lowest probability (very baisc calculation) of mine
+     * Method that reveals tile with the lowest probability (very basic calculation) of mine
      * @return bool if guess happened or not
      */
     public boolean guess(){

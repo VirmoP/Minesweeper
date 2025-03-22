@@ -3,7 +3,6 @@ import java.util.*;
 public class CSPSolver implements SolverInterface{
 
 
-
     int minesLeft;
 
     /**
@@ -22,98 +21,82 @@ public class CSPSolver implements SolverInterface{
 
 
         tiles[game.getStarty()][game.getStartx()].setRevealed(true);
-        TileInfo firstinfo = tiles[game.getStarty()][game.getStartx()].getInformation();
 
-        constraints.put(firstinfo.neighbours, firstinfo.minesInNeighbourhood);
-        //System.out.println(constraints);
+        for (Tile[] row: tiles) {
+            for (Tile tile : row) {
+                TileInfo info = tile.getInformation();
+                if (info.getClass() != TileInfoNull.class && !info.flagged)
+                    constraints.put(info.neighbours, info.minesInNeighbourhood);
+            }
+        }
+
         boolean somethingChanged = true;
 
+        //Constructing and solving constraint problems
         while (somethingChanged) {
             while (somethingChanged) {
                 while (somethingChanged) {
-                    while (somethingChanged) {
+                    iteration++;
 
-                        if (constraints.isEmpty())
-                            break;
+                    if (constraints.isEmpty())
+                        break;
 
-                        System.out.println(iteration++);
-                        System.out.println("-------------------");
-                        if (iteration > 500)
-                            return new SolveInfo(false, constraints);
+                    if (iteration > 500)
+                        return new SolveInfo(false, constraints);
 
 
-                        Map<Set<Tile>, Integer> tempconstraints;
-
-
-                        tempconstraints = removeUnnecessary(constraints);
-
-                        somethingChanged = !tempconstraints.equals(constraints);
-
-                        constraints = tempconstraints;
-
-                        //System.out.println("teine" + constraints);
-
-                        tempconstraints = simpleFlagAndReveal(constraints);
-
-                        //System.out.println(minesLeft + " mines");
-
-                        if (!somethingChanged)
-                            somethingChanged = !tempconstraints.equals(constraints);
-
-                        constraints = tempconstraints;
-                        if (minesLeft <= 0) {
-                            return new SolveInfo(true, constraints);
-                        }
-
-                        if (!somethingChanged) {
-                            System.out.println("*********");
-                            System.out.println(constraints);
-                            System.out.println("**********");
-                        }
-                    }
-                    System.out.println("simplify");
                     Map<Set<Tile>, Integer> tempconstraints;
 
-                    tempconstraints = simplify(constraints);
+                    //do simple changes
+                    tempconstraints = removeUnnecessary(constraints);
 
                     somethingChanged = !tempconstraints.equals(constraints);
 
                     constraints = tempconstraints;
-                }
-                System.out.println("Backtracking " + backtrackiteration++);
 
+                    tempconstraints = simpleFlagAndReveal(constraints);
+
+
+                    if (!somethingChanged)
+                        somethingChanged = !tempconstraints.equals(constraints);
+
+                    constraints = tempconstraints;
+                    if (minesLeft <= 0) {
+                        return new SolveInfo(true, constraints);
+                    }
+                }
                 Map<Set<Tile>, Integer> tempconstraints;
 
-                tempconstraints = backtrackingSetup(constraints);
+                //if nothing changed do more complex simplification
+                tempconstraints = simplify(constraints);
 
                 somethingChanged = !tempconstraints.equals(constraints);
-                if (backtrackiteration < 2)
-                    somethingChanged = true;
 
                 constraints = tempconstraints;
-                //System.out.println(constraints);
             }
-            Set<Tile> unmarked = new HashSet<>();
-            for (Tile[] row: tiles){
-                for (Tile tile: row){
-                    if (tile.getInformation().getClass() == TileInfoNull.class)
-                        unmarked.add(tile);
-                }
-            }
+            backtrackiteration++;
+            Map<Set<Tile>, Integer> tempconstraints;
 
+            //if nothing to simplify try all possible solutions and check if any tiles are mines or safe in all solutions
 
+            tempconstraints = backtrackingSetup(constraints);
 
+            somethingChanged = !tempconstraints.equals(constraints);
+            if (backtrackiteration < 2)
+                somethingChanged = true;
+
+            constraints = tempconstraints;
         }
-        System.out.println("==========");
-
-        System.out.println(constraints);
-
-        System.out.println("==========");
 
         return new SolveInfo(false, constraints);
     }
 
 
+    /**
+     * Method that sets up the recursive backtracking.
+     * @param constraints given constraints
+     * @return new constraints
+     */
     public Map<Set<Tile>, Integer> backtrackingSetup(Map<Set<Tile>, Integer> constraints){
         Map<Tile, Integer> values = new HashMap<>();
 
@@ -123,7 +106,7 @@ public class CSPSolver implements SolverInterface{
         }
         Tile[] allTiles = allTilesSet.toArray(new Tile[0]);
 
-        //Artificial constraint to make sure that the recursion wont get too much to handle
+        //Artificial constraint to make sure that the recursion won't get too much to handle
         if (allTiles.length > 10)
             return constraints;
 
@@ -131,11 +114,14 @@ public class CSPSolver implements SolverInterface{
             values.put(tile, 0);
         }
 
+        //map refers to valuation of tiles in constraints
         List<Map<Tile, Integer>> allMaps;
         List<Map<Tile, Integer>> allCorrectMaps = new ArrayList<>();
 
+        //get all maps
         allMaps = backtracking(0, allTiles, values, constraints);
 
+        //sort maps to be correct
         for (Map<Tile, Integer> map: allMaps){
             if (checkIfCorrect(map, constraints))
                 allCorrectMaps.add(map);
@@ -147,7 +133,8 @@ public class CSPSolver implements SolverInterface{
             return constraints;
 
 
-
+        //find all tiles where value is the same in every map
+        //if such is found make new constraint to reveal that later
         for (Tile tile: allTiles) {
             boolean tileFits = true;
             int firstvalue = allCorrectMaps.get(0).get(tile);
@@ -166,6 +153,14 @@ public class CSPSolver implements SolverInterface{
     }
 
 
+    /**
+     * Recursive method for finding all possible solutions to constraints
+     * @param i tile to change
+     * @param allTiles array of all tiles
+     * @param info chosen value for tiles
+     * @param constraints constraints to check for
+     * @return List of all possible solutions
+     */
     public List<Map<Tile, Integer>> backtracking(int i, Tile[] allTiles, Map<Tile, Integer> info, Map<Set<Tile>, Integer> constraints){
 
         if (i >= allTiles.length || !checkIfTooManyMines(info, constraints)){
@@ -188,6 +183,12 @@ public class CSPSolver implements SolverInterface{
 
     }
 
+    /**
+     * Method that checks if info map is possible in constraints
+     * @param info given info map to check
+     * @param constraints constraints to adhere to
+     * @return boolean true if given map is possible, false if too many mines somewhere
+     */
     public boolean checkIfTooManyMines(Map<Tile, Integer> info, Map<Set<Tile>, Integer> constraints){
         for (Set<Tile> constraint : constraints.keySet()){
             int sum = 0;
@@ -202,6 +203,12 @@ public class CSPSolver implements SolverInterface{
         return true;
     }
 
+    /**
+     * Method that checks if info map is possible in constraints
+     * @param info given info map to check
+     * @param constraints constraints to adhere to
+     * @return boolean true if given map is possible, false if too many or too few mines somewhere
+     */
     public boolean checkIfCorrect(Map<Tile, Integer> info, Map<Set<Tile>, Integer> constraints){
         for (Set<Tile> constraint : constraints.keySet()){
             int sum = 0;
@@ -215,49 +222,11 @@ public class CSPSolver implements SolverInterface{
         return true;
     }
 
-/*
-    public Set<Set<Set<Tile>>> turnIntoSubsets(Map<Set<Tile>, Integer> constraints){
-
-        Set<Tile> allTiles = new HashSet<>();
-
-        for (Set<Tile> constraint: constraints.keySet())
-            allTiles.addAll(constraint);
-
-        Set<Set<Set<Tile>>> subsets = new HashSet<>();
-
-        for (Tile tile: allTiles){
-            Set<Set<Tile>> subset = new HashSet<>();
-            for (Set<Tile> constraint: constraints.keySet()){
-                if (constraint.contains(tile))
-                    subset.add(constraint);
-            }
-            subsets.add(subset);
-        }
-
-        boolean changed = true;
-        while (changed) {
-            changed = false;
-            Set<Set<Set<Tile>>> tempsubsets = new HashSet<>();
-
-            for (Set<Set<Tile>> subset : subsets) {
-                Set<Set<Tile>> tempsubset = new HashSet<>(subset);
-                for (Set<Set<Tile>> subset1 : subsets) {
-                    for (Set<Tile> set : subset1)
-                        if (subset.contains(set)) {
-                            tempsubset.addAll(subset1);
-                            changed = true;
-                        }
-                }
-                tempsubsets.add(tempsubset);
-            }
-            subsets = tempsubsets;
-        }
-
-        return subsets;
-    }
-
- */
-
+    /**
+     * Checks if any constraint is a subset of other constraints, if it is then the larger one can be simplified
+     * @param constraints constraints to simplify
+     * @return simplified constraints
+     */
     public Map<Set<Tile>, Integer> simplify(Map<Set<Tile>, Integer> constraints){
         Map<Set<Tile>, Integer> tempconstraints = new HashMap<>();
 
@@ -280,6 +249,11 @@ public class CSPSolver implements SolverInterface{
     }
 
 
+    /**
+     * Method for simple constraint solution, if constraint is equal to zero then can reveal all tiles in constraint, if contraint is equal to number of tiles all can be flagged
+     * @param constraints given constraint to simplify
+     * @return simplified constraints
+     */
     public Map<Set<Tile>, Integer> simpleFlagAndReveal(Map<Set<Tile>, Integer> constraints){
         int flags = 0;
         Map<Set<Tile>, Integer> tempconstraints = new HashMap<>();
@@ -323,7 +297,11 @@ public class CSPSolver implements SolverInterface{
     }
 
 
-
+    /**
+     * Method that removes known mines from constraints and removes contraint if it is empty
+     * @param constraints constraints to simplify
+     * @return simplified constraints
+     */
     public Map<Set<Tile>, Integer> removeUnnecessary(Map<Set<Tile>, Integer> constraints){
         Map<Set<Tile>, Integer> tempconstraints = new HashMap<>();
 
