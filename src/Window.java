@@ -1,3 +1,7 @@
+import generators.AbstractGenerator;
+import solvers.*;
+import utils.*;
+
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -81,9 +85,9 @@ public class Window {
         solveButton.setPreferredSize(new Dimension(tilewidth*3, headersize/2));
         solveButton.setText("Solve");
         solveButton.addActionListener(e -> {
-            SolverInterface[] solvers = {new AutomatonSolver(), new AutomatonSolverWithGuess(), new SinglePointSolver(), new CSPSolver(), new CSPSolverSubsets()};
+            SolverInterface[] solvers = {new CSPSolverSubsets()};
 
-            SolverInterface solver = solvers[4];
+            SolverInterface solver = solvers[0];
             SolveInfo solveinfo = solver.solve(game);
 
             System.out.println("Solved - " + solveinfo.solved);
@@ -113,7 +117,7 @@ public class Window {
     }
 
     /**
-     * Method that sets up a Game object for the GUI
+     * Method that sets up a utils.Game object for the GUI
      * @param varx game width
      * @param vary game heigth
      * @param varminecount minecount
@@ -235,13 +239,13 @@ public class Window {
                     playfield.removeAll();
                     AbstractGenerator valitud = game.getChosenGenerator();
 
-                    game = new Game(width, heigth,minecount, button.tile.x, button.tile.y, valitud);
+                    game = new Game(width, heigth,minecount, button.tile.getX(), button.tile.getY(), valitud);
                     
                     createGrid(width, heigth, tilewidth);
                     printmatrix(game.getBoard().intboard);
 
                     //buttons[button.tile.y][button.tile.x].tile.setRevealed(true);
-                    buttons[button.tile.y][button.tile.x].tile.revealWithNeighbours();
+                    buttons[button.tile.getY()][button.tile.getX()].tile.revealWithNeighbours();
 
                     updateBoard();
                     return;
@@ -279,24 +283,24 @@ public class Window {
 
     /**
      * Method that checks if a tile has amount of neighbours equal to mines.
-     * @param button given TileButton
+     * @param button given utils.TileButton
      * @return boolean
      */
     private static boolean flagsPresent(TileButton button) {
         int flags = 0;
-        for (Tile tile: button.tile.neighbours){
+        for (Tile tile: button.tile.getNeighbours()){
             if (tile.isFlagged())
                 flags++;
         }
-        return flags == button.tile.minesInNeighbourhood;
+        return flags == button.tile.getMinesInNeighbourhood();
     }
 
     /**
      * Method that checks if a buttons neighbours are flagged, if not then reveals them
-     * @param button given TileButton
+     * @param button given utils.TileButton
      */
     private static void revealNeighbours(TileButton button) {
-        for (Tile neighbour : button.tile.neighbours){
+        for (Tile neighbour : button.tile.getNeighbours()){
             if (!neighbour.isFlagged()){
                 neighbour.revealWithNeighbours();
             }
@@ -330,7 +334,7 @@ public class Window {
                 updateButton(element);
                 if (element.tile.isMine() && element.tile.isRevealed()) {
                     gameover = true;
-                    counter.setText("Game lost");
+                    counter.setText("utils.Game lost");
                 }
                 if (element.tile.isFlagged())
                     flaggedCount++;
@@ -343,7 +347,7 @@ public class Window {
         counter.setText("Mines left - " + (minecount-flaggedCount));
 
         if (revealed == width * heigth - minecount){
-            counter.setText("Game Won");
+            counter.setText("utils.Game Won");
             gameover = true;
             unrevealedToMines();
         }
@@ -352,8 +356,8 @@ public class Window {
 
 
     /**
-     * Updates the visuals of a TileButton
-     * @param button TileButton
+     * Updates the visuals of a utils.TileButton
+     * @param button utils.TileButton
      */
     public static void updateButton(TileButton button){
         if (!button.tile.isFlagged() && !button.tile.isRevealed())
@@ -365,9 +369,9 @@ public class Window {
             if (button.tile.isMine())
                 button.setIcon(new ImageIcon("src/images/mine.png"));
             else {
-                button.setText(button.tile.minesInNeighbourhood + "");
+                button.setText(button.tile.getMinesInNeighbourhood() + "");
                 button.setBackground(new Color(255,255,255));
-                if (button.tile.minesInNeighbourhood == 0){
+                if (button.tile.getMinesInNeighbourhood() == 0){
                     button.setText("");
                 }
             }
