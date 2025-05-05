@@ -334,7 +334,7 @@ public class Window {
                 updateButton(element);
                 if (element.tile.isMine() && element.tile.isRevealed()) {
                     gameover = true;
-                    counter.setText("utils.Game lost");
+                    counter.setText("Game lost");
                 }
                 if (element.tile.isFlagged())
                     flaggedCount++;
@@ -347,7 +347,7 @@ public class Window {
         counter.setText("Mines left - " + (minecount-flaggedCount));
 
         if (revealed == width * heigth - minecount){
-            counter.setText("utils.Game Won");
+            counter.setText("Game Won");
             gameover = true;
             unrevealedToMines();
         }
@@ -363,11 +363,11 @@ public class Window {
         if (!button.tile.isFlagged() && !button.tile.isRevealed())
             button.setIcon(null);
         if (button.tile.isFlagged())
-            button.setIcon(new ImageIcon("src/images/flag.png"));
+            button.setIcon(new ImageIcon("src/images/flag2.png"));
         if (button.tile.isRevealed()){
 
             if (button.tile.isMine())
-                button.setIcon(new ImageIcon("src/images/mine.png"));
+                button.setIcon(new ImageIcon("src/images/mine2.png"));
             else {
                 button.setText(button.tile.getMinesInNeighbourhood() + "");
                 button.setBackground(new Color(255,255,255));

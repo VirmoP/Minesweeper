@@ -182,6 +182,6 @@ public abstract class AbstractGenerator {
 
     @Override
     public String toString() {
-        return getClass().getName();
+        return getClass().getName().split("\\.")[1];
     }
 }

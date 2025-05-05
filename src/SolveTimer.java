@@ -5,26 +5,29 @@ import utils.Game;
 
 import java.io.*;
 import java.util.Arrays;
+
+import static java.lang.Integer.MAX_VALUE;
+
 public class SolveTimer {
     /**
      * Class for generating solvable tables and timing them.
      */
 
     public static void main(String[] args) throws IOException {
-        CSPSubsetSolveMineMoveGenerator generator = new CSPSubsetSolveMineMoveGenerator();
+        AutomatonSolveMineMoveGenerator generator = new AutomatonSolveMineMoveGenerator();
         CSPSolverSubsets solver = new CSPSolverSubsets();
         Board board = null;
         Game game = null;
         String s = "";
-        File file = new File("results_CSPsimple30percent.txt");
+        File file = new File("results_Automaton.txt");
         file.createNewFile();
-        FileWriter writer = new FileWriter("results_CSPsimple30percent.txt");
+        FileWriter writer = new FileWriter("results_Automaton.txt");
 
 
-        for (int percentage = 30; percentage < 31; percentage += 5) {
-            for (int sizex = 10; sizex < 201; sizex += 5) {
-                for (int sizey = sizex; sizey < 201; sizey += 5) {
-                    for (int iteration = 0; iteration < 10; iteration++) {
+        for (int percentage = 5; percentage < 21; percentage += 5) {
+            for (int sizex = 10; sizex < 101; sizex += 10) {
+                for (int sizey = sizex; sizey < 101; sizey += 10) {
+                    for (int iteration = 0; iteration < 5; iteration++) {
                         System.gc();
                         int mines = (int) ((sizey * sizex) * ((float) percentage / 100.0));
                         int startx = (int) (sizex * 0.5);
@@ -38,6 +41,7 @@ public class SolveTimer {
                         s = endTime - startTime + " ms, " + generator + ",  x = " + sizex + ", y = " + sizey+ ", mines = " + mines + ", solved = " + solver.solve(game).solved + "\n";
                         writer.write(s);
                     }
+                    System.out.println("res - " + s);
                 }
                 System.out.println(s);
             }
