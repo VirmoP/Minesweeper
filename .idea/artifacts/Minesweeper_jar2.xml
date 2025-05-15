@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Minesweeper:jar2">
+    <output-path>$PROJECT_DIR$/out/artifacts/Minesweeper_jar2</output-path>
+    <root id="archive" name="Minesweeper.jar">
+      <element id="module-output" name="Minesweeper" />
+      <element id="library" level="application" name="Python 3.9 interpreter library" />
+    </root>
+  </artifact>
+</component>
